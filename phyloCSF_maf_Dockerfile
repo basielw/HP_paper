@@ -1,0 +1,30 @@
+# DESCRIPTION
+# Dockerfile for one_bed_to_maf
+# This script will make the FASTA files that PhyloCSF needs from one BED file
+# Warning: this script doesn't actually execute PhyloCSF itself, to do that see https://github.com/mlin/PhyloCSF/wiki
+#
+# INSTRUCTIONS
+# To build:
+#	docker build -t basielw:PhyloBED https://gist.github.com/basielw/550e1394faf4a203cd09df61f8b74129/raw/dockerfile
+# To get help:
+#	docker run basielw:PhyloBED -h
+# To run:
+#	docker run -v INPUT_DIR:/data/bed_input -v MAF_DIR:/data/maf_input -v OUTPUT_DIR:/data/output basielw:PhyloBED -i 29mammals -b /data/bed_input/BED_FILE.bed -m /data/maf_input -o /data/output
+#	--> modify INPUT_DIR to where your BED file is located and BED_FILE to the name of your BED file
+#	--> modify MAF_DIR to where all of your MAF files are located
+#	--> modify OUTPUT_DIR to where you want the output to be saved
+#	--> you can change '29mammals' to '46way' if you wish (see help)
+#	--> you can also get rid of '-i 29mammals' and add a custom replacements file using '-r' (see help)
+#
+# DOCKER
+FROM ubuntu:14.04
+MAINTAINER Basiel Weyers <basiel.weyers@ugent.be>
+RUN apt-get update
+RUN apt-get install -y wget python
+RUN wget http://compgen.cshl.edu/phast/downloads/phast.v1_3.x86_64.deb
+RUN dpkg -i phast.v1_3.x86_64.deb
+RUN wget -O one_bed_to_maf.py https://github.ugent.be/raw/bweyers/Bio-converters/master/one_bed_to_maf.py?token=AAANz57a3nFtuhx-0GeIh3RX8Po-fRoqks5XtD0TwA%3D%3D
+RUN chmod 700 /one_bed_to_maf.py
+WORKDIR /data
+RUN mkdir /data/bed_input /data/maf_input /data/output
+ENTRYPOINT ["/one_bed_to_maf.py"]
